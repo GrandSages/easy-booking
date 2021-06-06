@@ -9,14 +9,20 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.grandsages</groupId>
-    <artifactId>easy-booking</artifactId>
+    <artifactId>easy-booking-reservation</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>easy-booking</name>
+    <name>easy-booking-reservation</name>
     <description>An easy hospitality booking system made by grandsages</description>
     <properties>
         <java.version>11</java.version>
+        <start-class>com.easybooking.reservation.EasyBookingApplication</start-class>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>com.grandsages</groupId>
+            <artifactId>easy-booking-common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
