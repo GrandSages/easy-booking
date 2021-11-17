@@ -5,6 +5,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class TestPessimisticLock extends TestLockBase implements ApplicationRunner {
     private final String PRODUCT_LOCK;
@@ -36,23 +38,24 @@ public class TestPessimisticLock extends TestLockBase implements ApplicationRunn
      */
     private boolean shopping(Customer customer) {
 //        System.out.println(customer.name + "開始搶購商品");
+        String lockId = null;
         try {
             if (noMoreProducts(PRODUCT_KEY)) {
                 return false;
             }
 
-            var hasLock = redisValue.lock(PRODUCT_LOCK, 500);
-            if (!hasLock) return true;
+            lockId = redisValue.lock(PRODUCT_LOCK, 500);
+            if (lockId == null) return true;
 
             redisValue.incr(PRODUCT_KEY, -1);
             SHOPPING_SUCCESS_LIST.add(customer.name);
             return false;
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            redisValue.del(PRODUCT_LOCK);
+            redisValue.releaseLock(PRODUCT_LOCK, lockId);
             return false;
         } finally {
-            redisValue.del(PRODUCT_LOCK);
+            redisValue.releaseLock(PRODUCT_LOCK, lockId);
         }
     }
 

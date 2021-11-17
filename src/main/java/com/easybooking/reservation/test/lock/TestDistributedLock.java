@@ -73,6 +73,7 @@ public class TestDistributedLock extends TestLockBase implements ApplicationRunn
 //        System.out.println(customer.name + "開始搶購商品");
         var rand = (int) (Math.random() * PRODUCT_CATEGORY_NUM);
         var productLock = PRODUCT_LOCKS[rand];
+        String lockId = null;
         try {
 
             var productKey = PRODUCT_KEYS[rand];
@@ -80,8 +81,8 @@ public class TestDistributedLock extends TestLockBase implements ApplicationRunn
                 return false;
             }
 
-            var hasLock = redisValue.lock(productLock, 500);
-            if (!hasLock) return true;
+            lockId = redisValue.lock(productLock, 500);
+            if (lockId == null) return true;
 
             redisValue.incr(productKey, -1);
             SHOPPING_SUCCESS_MAP.putIfAbsent(rand, new ArrayList<>());
@@ -89,10 +90,10 @@ public class TestDistributedLock extends TestLockBase implements ApplicationRunn
             return false;
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            redisValue.del(productLock);
+            redisValue.releaseLock(productLock, lockId);
             return false;
         } finally {
-            redisValue.del(productLock);
+            redisValue.releaseLock(productLock, lockId);
         }
     }
 
